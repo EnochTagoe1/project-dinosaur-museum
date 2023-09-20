@@ -54,7 +54,28 @@ const exampleTicketData = require("../data/tickets");
     calculateTicketPrice(tickets, ticketInfo);
     //> "Entrant type 'kid' cannot be found."
  */
-function calculateTicketPrice(ticketData, ticketInfo) {}
+// (((Used ChatGpt for the next two questions)))
+function calculateTicketPrice(ticketData, ticketInfo) {
+  //check if ticketInfo.ticketType is valid
+  if(!ticketData[ticketInfo.ticketType]) {
+    return `Invalid ticket type.`
+  };
+  //check if ticketInfo.entrantType is valid
+  if(!ticketData[ticketInfo.ticketType][ticketInfo.entrantType]) {
+    return `Invalid entrant type.`
+  }
+  //check if extras are valid
+  for(extra of ticketInfo.extras) {
+    if(!ticketData.extra[extra]) {
+      return `Invalid extra.`
+    }
+    //calculate the total ticket price
+    let totalPriceInCents = ticketData[ticketInfo.ticketType][ticketInfo.entrantType]
+    for(extra of ticketInfo.extras) {
+      totalPriceInCents += ticketData.extras[extra]
+    }//return the total price 
+  } return totalPriceInCents
+}
 
 /**
  * purchaseTickets()
@@ -109,7 +130,44 @@ function calculateTicketPrice(ticketData, ticketInfo) {}
     purchaseTickets(tickets, purchases);
     //> "Ticket type 'discount' cannot be found."
  */
-function purchaseTickets(ticketData, purchases) {}
+function purchaseTickets(ticketData, purchases) {
+  //helper function to calculate the ticket price 
+  function calculatesingleTicketPrice(purchase) {
+    if(!exampleTicketData[purchase.ticketType]) {
+      return `Ticket type `${purchase.ticketType}`not found`
+    }
+    if(!ticketData[purchase.ticketType][purchase.entrantType]) {
+      return `Invalid entrant type for `${purchase.ticketType} ticket
+    }
+    letTotalPrice = ticketData[purchase.ticketType][purchase.entrantType]
+    for(let extra of purchase.extras) {
+      if(!ticketData.extras[extra]) {
+        return `Invalid extra: ${extra}`
+      }
+      totalPrice += ticketData.extras[extra]
+    }
+  } return totalPrice
+}
+// Initialiaze the receipt
+let receipt = `Thank you for visiting the Dinosaur Museum!\n; receipt += "-------------------------"\n`
+
+//calculate and append the ticket prices for each purchase
+let total = 0;
+for(let purchase of purchases) {
+  let totalPrice = calculatesingleTicketPrice(purchase)
+
+  if(typeof totalPrice === 'string') {
+    return totalPrice // or associated error message
+  }
+  receipt += `${purchase.entrantType} ${purchase.ticketType} Admission: $${totalPrice/100}.toFixed(2) (${purchase.extras.join(",")}) \n`
+  total += totalPrice;
+}
+//append the total to the receipt
+receipt += "----------------------\n";
+receipt += `TOTAL: $${(total/100).toFixed(2)}`;
+
+return receipt;
+
 
 // Do not change anything below this line.
 module.exports = {
